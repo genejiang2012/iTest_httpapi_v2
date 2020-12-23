@@ -5,7 +5,7 @@
 # @File    : api_4_3rd.py
 # @Description: these wrapped apis for third party
 
-from core_api import BaseAPI
+from .core_api import BaseAPI
 
 
 class TestLogin(BaseAPI):
@@ -18,3 +18,17 @@ class TestLogin(BaseAPI):
                }
     method = "POST"
 
+
+class TestSegmentList(BaseAPI):
+    url = "http://54.212.1.235:9102/api/v1/dsp/segments?pageIndex=1&pageSize=30"
+    method = 'GET'
+    headers = {
+        'Content-Type': 'application/json; charset=utf-8',
+        'application-Type': 'dsp'
+    }
+
+    def set_token(self, token):
+        print(self)
+        self.headers.update({"X-token": token})
+        print(self)
+        return self

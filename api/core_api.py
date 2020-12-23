@@ -5,8 +5,10 @@
 # @File    : api_4_3rd.py
 # @Description: core api for calling the requests API
 
-
+import json
 import requests
+import loguru
+
 
 session = requests.sessions.Session()
 
@@ -32,7 +34,7 @@ class BaseAPI:
         return self
 
     def set_json(self, json_data):
-        self.data = json_data
+        self.data = json.dumps(json_data)
         return self
 
     def set_cookies(self, **cookies):
@@ -65,6 +67,8 @@ class BaseAPI:
                             (requests.structures.CaseInsensitiveDict, dict)):
                 value = value[_key]
 
+            print("The key1 is {}, the value1 is {}, the type(value)1 is {}! \
+                    ".format(_key, value, type(value)))
         return value
 
     def validate(self, key, expected_value):
