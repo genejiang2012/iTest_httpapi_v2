@@ -6,7 +6,7 @@
 # @Description:
 
 from httpapi.api_4_3rd import *
-from .context import init_session
+from tests.context import init_session
 
 
 def test_version():
@@ -15,13 +15,13 @@ def test_version():
 
 
 def test_login(init_session):
-    token = TestLogin().\
-        set_json({
+    token = TestLogin() \
+        .set_json({
         "loginId": "dsp.funplus",
-        "password": "FunPlus_data_2020"})\
-        .run(init_session)\
-        .validate('json.status.code', 'E0')\
-        .validate('json.status.message', 'ok')\
+        "password": "FunPlus_data_2020"}) \
+        .run(init_session) \
+        .validate('json.status.code', 'E0') \
+        .validate('json.status.message', 'ok') \
         .extract('json.data.token')
 
     return token

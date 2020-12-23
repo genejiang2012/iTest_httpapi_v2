@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../git_fork/httprunner/.idea/httprunner.iml" filepath="$PROJECT_DIR$/../../git_fork/httprunner/.idea/httprunner.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/iTest_httpapi_v2.iml" filepath="$PROJECT_DIR$/.idea/iTest_httpapi_v2.iml" />
     </modules>
   </component>
