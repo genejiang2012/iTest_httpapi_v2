@@ -33,5 +33,6 @@ def test_get_segment_list(init_session):
         .run(init_session)\
         .validate('json.status.code', 'E0')\
         .validate('json.status.message', 'ok')\
-        .validate("json.data.total", 6)
+        .validate("json.data.total", 6)\
+        .validate("json.data.list", [])
 

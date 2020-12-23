@@ -7,7 +7,9 @@
 
 import json
 import requests
-import loguru
+
+
+from .api_log import *
 
 
 session = requests.sessions.Session()
@@ -58,6 +60,7 @@ class BaseAPI:
         value = self.response
 
         for _key in field.split("."):
+            logger.debug(f"The extract key is {_key}")
             if isinstance(value, requests.Response):
                 if _key == 'json':
                     value = self.response.json()
@@ -66,9 +69,7 @@ class BaseAPI:
             elif isinstance(value,
                             (requests.structures.CaseInsensitiveDict, dict)):
                 value = value[_key]
-
-            print("The key1 is {}, the value1 is {}, the type(value)1 is {}! \
-                    ".format(_key, value, type(value)))
+            logger.debug(f"The extract value is {value}")
         return value
 
     def validate(self, key, expected_value):
