@@ -20,7 +20,7 @@ class TestLogin(BaseAPI):
 
 
 class TestSegmentList(BaseAPI):
-    url = "http://54.212.1.235:9102/api/v1/dsp/segments?pageIndex=1&pageSize=30"
+    url = "http://54.212.1.235:9102/api/v1/dsp/segments"
     method = 'GET'
     headers = {
         'Content-Type': 'application/json; charset=utf-8',

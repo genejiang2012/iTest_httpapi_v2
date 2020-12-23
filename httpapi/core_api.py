@@ -44,6 +44,7 @@ class BaseAPI:
         return self
 
     def run(self, session=None):
+        logger.debug(f"the params of the instance is {self.params}")
         self.response = session.request(
             self.method,
             self.url,

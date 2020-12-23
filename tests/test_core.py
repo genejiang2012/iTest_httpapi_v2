@@ -5,12 +5,12 @@
 # @File    : test_core.py.py
 # @Description:
 
-from api.api_4_3rd import *
+from httpapi.api_4_3rd import *
 from .context import init_session
 
 
 def test_version():
-    from api import __version__
+    from httpapi import __version__
     assert isinstance(__version__, str)
 
 
@@ -30,9 +30,9 @@ def test_login(init_session):
 def test_get_segment_list(init_session):
     TestSegmentList()\
         .set_token(test_login(init_session))\
+        .set_params(pageIndex=1, pageSize=1)\
         .run(init_session)\
         .validate('json.status.code', 'E0')\
         .validate('json.status.message', 'ok')\
-        .validate("json.data.total", 6)\
-        .validate("json.data.list", [])
+        .validate("json.data.total", 6)
 
