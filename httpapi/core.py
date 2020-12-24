@@ -2,17 +2,12 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2020/12/22 18:58
 # @Author  : Gene Jiang
-# @File    : api_4_3rd.py
+# @File    : testcases.py
 # @Description: core api for calling the requests API
 
 import json
 import requests
-
-
-from .api_log import *
-
-
-session = requests.sessions.Session()
+from loguru import logger
 
 
 class BaseAPI:

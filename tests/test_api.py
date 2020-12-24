@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2020/12/23 9:46
 # @Author  : Gene Jiang
-# @File    : test_core.py.py
+# @File    : test_api.py.py
 # @Description:
 
-from httpapi.api_4_3rd import *
+from httpapi.testcases import *
 from tests.context import init_session
 
 
@@ -15,6 +15,7 @@ def test_version():
 
 
 def test_login(init_session):
+    logger_handler = case_start(test_login.__name__)
     token = TestLogin() \
         .set_json({
         "loginId": "dsp.funplus",
@@ -24,10 +25,13 @@ def test_login(init_session):
         .validate('json.status.message', 'ok') \
         .extract('json.data.token')
 
+    logger.remove(logger_handler)
+
     return token
 
 
 def test_get_segment_list(init_session):
+    logger_handler = case_start(test_get_segment_list.__name__)
     TestSegmentList()\
         .set_token(test_login(init_session))\
         .set_params(pageIndex=1, pageSize=1)\
@@ -35,4 +39,6 @@ def test_get_segment_list(init_session):
         .validate('json.status.code', 'E0')\
         .validate('json.status.message', 'ok')\
         .validate("json.data.total", 6)
+
+    logger.remove(logger_handler)
 

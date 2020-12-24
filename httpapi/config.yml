@@ -2,3 +2,6 @@ config:
     name: cc_expose
     host: http://54.212.1.235
     port: 9102
+path:
+    login: /!/upm/api/appUserLogin
+    segment_list: api/v1/dsp/segments

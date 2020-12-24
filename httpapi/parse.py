@@ -11,7 +11,7 @@ from typing import Tuple, Dict, Union, Text, List, Callable
 from loguru import logger
 
 
-def _load_yaml_file(yaml_file: Text) -> Dict:
+def load_yaml_file(yaml_file: Text) -> Dict:
     with open(yaml_file, mode='rb') as stream:
         try:
             yaml_content = yaml.load(stream, Loader=yaml.FullLoader)
@@ -20,3 +20,7 @@ def _load_yaml_file(yaml_file: Text) -> Dict:
             logger.error(error_msg)
 
         return yaml_content
+
+
+# res = load_yaml_file("./config.yml")
+# print(res)
