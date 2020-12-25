@@ -74,3 +74,8 @@ class BaseAPI:
 
     def get_response(self):
         return self.response
+
+
+class HttpAPI:
+    pass
+

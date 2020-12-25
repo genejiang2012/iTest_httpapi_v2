@@ -8,9 +8,13 @@
 import os
 import time
 
-from httpapi.core import BaseAPI
+from typing import Text, Any, Union, Callable
+
+from httpapi.model import TConfig
+
+from httpapi.httpapi import BaseAPI
 from httpapi.parse import load_yaml_file
-from httpapi.core import *
+from httpapi.httpapi import *
 from httpapi.log import *
 from httpapi.exceptions import StringEmptyError
 from httpapi.log import get_project_metadata
@@ -79,3 +83,53 @@ def case_start(name):
         return log_handler
     else:
         raise StringEmptyError
+
+
+class Config:
+    def __init__(self, name: Text):
+        self.__name__ = name
+        self.__variables = {}
+        self.__base_url = ""
+        self.__verify = False
+        self.__export = []
+        self.__weight = 1
+
+    @property
+    def name(self) -> Text:
+        return self.__name
+    
+    @property
+    def weight(self) -> int:
+        return self.__weight
+    
+    def variables(self, **variables) -> "Config":
+        self.__variables.update(variables)
+        return self
+    
+    def base_url(self, base_url: Text) -> "Config":
+        self.__base_url = base_url
+        return self
+    
+    def verify(self, verify: bool) -> "Config":
+        self.__verify = verify
+        return self
+    
+    def export(self, *export_var_name: Text) -> "Config":
+        self.__export.extend(export_var_name)
+        return self
+    
+    def locust_weight(self, weight: Text) -> "Config":
+        self.__weight = weight
+        return self
+    
+    def perform(self) -> "Config":
+        return TConfig(
+            name=self.name,
+            base_url=self.base_url,
+            verify=self.verify, 
+            variables=self.__variables,
+            export=list(set(self.__export)),
+            path=self.path,
+            weight=self.weight
+        )
+    
