@@ -37,3 +37,16 @@ class TConfig(BaseModel):
     export: Export = []
     path: Text = None
     weight: int = 1
+
+class TRequest(BaseModel):
+    method: MethodEnum
+    url: Url
+    params: Dict[Text, Text] = {}
+    headers: headers = {}
+    req_json: Union[Dict, List, Text] = Field(None, alias='json')
+    data: Union[Text, Dict[Text, Any]] = None
+    cookies: Cookies = {}
+    timeout: float = 120
+    allow_redirects: bool = True
+    verify: Verify = False
+    upload: Dict={}
