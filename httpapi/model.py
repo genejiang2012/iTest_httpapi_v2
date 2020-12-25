@@ -17,6 +17,7 @@ Export = List[Text]
 Validators = List[Dict]
 Env = Dict[Text, Any]
 
+
 class MethodEnum(Text, Enum):
     GET = "GET"
     POST = "POST"
@@ -32,7 +33,7 @@ class TConfig(BaseModel):
     verify: Verify = False
     base_url: BaseUrl = ""
     variables: Union[VariablesMapping, Text] = {}
-    parameters: Union[VariablesMapping, Text] = {} 
+    parameters: Union[VariablesMapping, Text] = {}
     export: Export = []
     path: Text = None
     weight: int = 1
