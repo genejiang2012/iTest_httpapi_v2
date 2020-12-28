@@ -38,15 +38,149 @@ class TConfig(BaseModel):
     path: Text = None
     weight: int = 1
 
+
 class TRequest(BaseModel):
     method: MethodEnum
     url: Url
     params: Dict[Text, Text] = {}
-    headers: headers = {}
+    headers: Headers = {}
     req_json: Union[Dict, List, Text] = Field(None, alias='json')
     data: Union[Text, Dict[Text, Any]] = None
     cookies: Cookies = {}
     timeout: float = 120
     allow_redirects: bool = True
     verify: Verify = False
-    upload: Dict={}
+    upload: Dict = {}
+
+
+class TStep(BaseModel):
+    name: Name
+    request: Union[TRequest, None] = None
+    tet_case: Union[Text, Callable, None] = None
+    variables: VariablesMapping = {}
+    extract: VariablesMapping = {}
+    export: Export = []
+    validators: Validators = Field([], alias='validate')
+    validate_script: List[Text] = []
+
+
+class TestCase(BaseModel):
+    config: TConfig
+    test_steps: List[TStep]
+
+
+class ProjectMeta(BaseModel):
+    httpapi_py: Text = ""
+    httpai_path: Text = ""
+    dot_env_path: Text = ""
+    functions: FunctionsMapping = {}
+    env: Env = {}
+    RootDir: Text = os.getcwd()
+
+
+class TestsMapping(BaseModel):
+    project_meta: ProjectMeta
+    testcases: List[TestCase]
+
+
+class TestCaseTime(BaseModel):
+    start_at: float = 0
+    start_at_iso_format: Text = ""
+    duration: float = 0
+
+
+class TestCaseInOut(BaseModel):
+    config_vars: VariablesMapping = {}
+    export_vars: Dict = {}
+
+
+class RequestStat(BaseModel):
+    content_size: float = 0
+    response_time_ms: float = 0
+    elapsed_ms: float = 0
+
+
+class AddressData(BaseModel):
+    client_ip: Text = "N/A"
+    client_port: int = 0
+    server_ip: Text = ""
+    server_port: int = 0
+
+
+class RequestData(BaseModel):
+    method: MethodEnum = MethodEnum.GET
+    url: Url
+    headers: Headers = {}
+    cookies: Cookies = {}
+    body: Union[Text, bytes, Dict, List, None] = {}
+
+
+class ResponseData(BaseModel):
+    status_code: int
+    headers: Dict
+    cookies: Cookies
+    encoding: Union[Text, None] = None
+    content_type: Text
+    body: Union[Text, bytes, Dict]
+
+
+class ReqRespData(BaseModel):
+    request: RequestData
+    response: ResponseData
+
+
+class SessionData(BaseModel):
+    success: bool = False
+    req_resps: List[ReqRespData] = []
+    stat: RequestStat = RequestStat()
+    address: AddressData = AddressData()
+    validators: Dict = {}
+
+
+class StepData(BaseModel):
+    success: bool = False
+    name: Text = ""
+    data: Union[SessionData, List[SessionData]] = None
+    export_vars: VariablesMapping = {}
+
+
+class TestCaseSummary(BaseModel):
+    name: Text
+    success: bool
+    case_id: Text
+    time: TestCaseTime
+    in_out: TestCaseInOut = {}
+    log: Text = ""
+    step_datas: List[StepData] = []
+
+
+class PlatformInfo(BaseModel):
+    httpapi_version: Text
+    python_version: Text
+    platform: Text
+
+
+class TestCaseRef(BaseModel):
+    name: Text
+    base_url: Text = ""
+    tet_case: Text
+    variables: VariablesMapping = {}
+
+
+class TestSuite(BaseModel):
+    config: TConfig
+    testcases: List[TestCaseRef]
+
+
+class Stat(BaseModel):
+    total: int = 0
+    success: int = 0
+    fail: int = 0
+
+
+class TestSuiteSummary(BaseModel):
+    success: bool = False
+    stat: Stat = Stat()
+    time: TestCaseTime = TestCaseTime()
+    platform: PlatformInfo
+    testcases: List[TestCaseSummary]
