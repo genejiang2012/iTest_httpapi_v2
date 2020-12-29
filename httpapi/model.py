@@ -56,7 +56,7 @@ class TRequest(BaseModel):
 class TStep(BaseModel):
     name: Name
     request: Union[TRequest, None] = None
-    tet_case: Union[Text, Callable, None] = None
+    test_case: Union[Text, Callable, None] = None
     variables: VariablesMapping = {}
     extract: VariablesMapping = {}
     export: Export = []

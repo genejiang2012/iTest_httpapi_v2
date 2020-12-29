@@ -1,6 +1,6 @@
 import pytest
 
-from httpapi.model import MethodEnum, TConfig, TRequest
+from httpapi.model import MethodEnum, TConfig, TRequest, TStep
 
 
 def test_method_enum():
@@ -65,3 +65,36 @@ def test_trequest():
     assert _request.cookies == {}
     assert _request.timeout == 120
     assert _request.allow_redirects == True
+
+
+def test_tstep():
+    data = {
+        'name': 'profile_task',
+        'request': {
+                    'method': 'GET',
+                    'url': "www.baidu.com",
+                    'params': {'abc': '123'},
+                    'headers': {'Content-Type': 'application/json', },
+                    'json': {
+                        "loginId": "dsp",
+                        "password": "data_2020"
+                    },
+                    'data': '123',
+                    'cookies': {},
+                    'timeout': 120,
+                    'allow_redirects': True,
+                    'verify': False,
+                    'upload': {}
+                    },
+        'test_case': 'profile_task',
+        'variables': {'params1': 'params1'},
+        'extract': {'extract_value': 'extract1'},
+        'export': ['123', '456'],
+        'validators': [{"code": "E0"}, {"message": "OK"}],
+        'validate_script': []
+    }
+    _tstep = TStep(**data)
+    assert _tstep.name == 'profile_task'
+    assert _tstep.request.method == 'GET'
+    assert _tstep.tet_case == 'profile_task'
+    assert _tstep.variables['params1'] == 'params1'
