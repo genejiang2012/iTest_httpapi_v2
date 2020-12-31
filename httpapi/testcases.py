@@ -13,7 +13,7 @@ from typing import Text, Any, Union, Callable
 from httpapi.model import TConfig, TRequest, TestCase, TStep
 
 from httpapi.core import BaseAPI
-from httpapi.parse import load_yaml_file
+from httpapi.parser import load_yaml_file
 from httpapi.core import *
 from httpapi.log import *
 from httpapi.exceptions import StringEmptyError
