@@ -13,3 +13,14 @@ class MyBaseFailure(Exception):
 class StringEmptyError(MyBaseFailure):
     pass
 
+
+class NotFoundError(MyBaseFailure):
+    pass
+
+
+class FileNotFound(FileNotFoundError, NotFoundError):
+    pass
+
+class FileFormatError(MyBaseFailure):
+    pass
+

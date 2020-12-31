@@ -71,7 +71,7 @@ class TestCase(BaseModel):
 
 class ProjectMeta(BaseModel):
     httpapi_py: Text = ""
-    httpai_path: Text = ""
+    httpapi_path: Text = ""
     dot_env_path: Text = ""
     functions: FunctionsMapping = {}
     env: Env = {}

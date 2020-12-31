@@ -6,13 +6,13 @@
 # @Description: core api for calling the requests API
 
 import json
+import os
 import time
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn
 
 import requests
 from loguru import logger
-
 
 from httpapi.model import (
     TConfig,
@@ -27,6 +27,7 @@ from httpapi.model import (
 )
 from httpapi.testcases import Config, Step
 from httpapi.client import HttpSession
+from httpapi.loader import load_project_data
 
 
 class BaseAPI:
@@ -124,5 +125,46 @@ class HttpAPI:
         if not hasattr(self, "__config"):
             self.__init_tests__()
 
+        return TestCase(config=self.__config, test_steps=self.__test_steps)
 
+    def with_project_meta(self, project_meta: ProjectMeta) -> "HttpAPI":
+        self.__project_meta = project_meta
+        return self
+
+    def with_session(self, session: HttpSession) -> "HttpAPI":
+        self.__session = session
+        return self
+
+    def with_case_id(self, case_id: Text) -> "HttpAPI":
+        self.__case_id = case_id
+        return self
+
+    def with_variables(self, variables: VariablesMapping) -> "HttpAPI":
+        self.__session_variables = variables
+        return self
+
+    def with_export(self, export: List[Text]) -> "HttpAPI":
+        self.__export = export
+        return self
+
+    def test_start(self, params: Dict = None) -> "HttpAPI":
+        self.__init_tests__()
+        self.__project_meta = self.__project_meta
+
+    def test_start(self, param: Dict = None) -> "HttpAPI":
+        self.__init_tests__()
+        self.__project_meta = self.__project_meta or load_project_data(
+            self.__config.path)
+        self.__case_id = self.__case_id
+        self.__log_path = self.__log_path or os.path.join(
+            self.__project_meta.RootDir,
+            "logs",
+            f"{self.__case_id}.run.log")
+        log_handler = logger.add(self.__log_path, level="DEBUG")
+
+        # parse config name
+        config_variables = self.__config.variables
+        if param:
+            config_variables.update(param)
+        config_variables.update(self.__session_variables)
 
