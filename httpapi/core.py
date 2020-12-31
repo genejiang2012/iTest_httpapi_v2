@@ -6,8 +6,27 @@
 # @Description: core api for calling the requests API
 
 import json
+import time
+from datetime import datetime
+from typing import List, Dict, Text, NoReturn
+
 import requests
 from loguru import logger
+
+
+from httpapi.model import (
+    TConfig,
+    TStep,
+    VariablesMapping,
+    StepData,
+    TestCaseSummary,
+    TestCaseTime,
+    TestCaseInOut,
+    ProjectMeta,
+    TestCase
+)
+from httpapi.testcases import Config, Step
+from httpapi.client import HttpSession
 
 
 class BaseAPI:
@@ -77,5 +96,33 @@ class BaseAPI:
 
 
 class HttpAPI:
-    pass
+    config: Config
+    test_steps: List[Step]
+
+    success: bool = False
+    __config: TConfig
+    __test_steps: List[TStep]
+    __project_meta: ProjectMeta = None
+    __case_id: Text = ""
+    __export: List[Text] = []
+    __step_data: List[StepData] = []
+    __session: HttpSession = None
+    __session_variables: VariablesMapping = {}
+
+    # time
+    __start_at: float = 0
+    __duration_: float = 0
+    # log
+    __log_path: Text = ""
+
+    def __init_tests__(self) -> NoReturn:
+        self.__config = self.config.perform()
+        self.__test_steps = [step.perform() for step in self.test_steps]
+
+    @property
+    def raw_testcase(self) -> TestCase:
+        if not hasattr(self, "__config"):
+            self.__init_tests__()
+
+
 
