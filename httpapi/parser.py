@@ -16,6 +16,7 @@ dollar_regex_compile = re.compile(r"\$\$")
 variable_regex_compile = re.compile(r"\$\{(\w+)\}|\$(\w+)")
 function_regex_compile = re.compile(r"\$\{(\w+)\(([\$\w\.\-/\s=,]*)\)\}")
 
+
 def load_yaml_file(yaml_file: Text) -> Dict:
     with open(yaml_file, mode='rb') as stream:
         try:
@@ -40,6 +41,8 @@ def parse_string(
         return parsed_string
 
     while match_start_position < len(raw_string):
+        dollar_match = dollar_regex_compile.match(raw_string,
+                                                  match_start_position)
 
 
 def parse_data(
@@ -47,11 +50,8 @@ def parse_data(
         variables_mapping: VariablesMapping = None,
         functions_mapping: FunctionsMapping = None
 ) -> Any:
-
     if isinstance(raw_data, str):
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
         raw_data = raw_data.strip(" \t")
-
-
-
+        return parse_string()
