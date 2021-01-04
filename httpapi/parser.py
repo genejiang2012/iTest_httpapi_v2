@@ -44,6 +44,18 @@ def parse_string(
         dollar_match = dollar_regex_compile.match(raw_string,
                                                   match_start_position)
 
+        # search $$
+        if dollar_match:
+            match_start_position = dollar_match.end()
+            parsed_string += "$"
+            continue
+
+        # search functions
+        func_match = function_regex_compile.match(raw_string, match_start_position)
+        if func_match:
+            fun_name = func_match.group(1)
+
+
 
 def parse_data(
         raw_data: Any,

@@ -147,10 +147,6 @@ class HttpAPI:
         self.__export = export
         return self
 
-    def test_start(self, params: Dict = None) -> "HttpAPI":
-        self.__init_tests__()
-        self.__project_meta = self.__project_meta
-
     def test_start(self, param: Dict = None) -> "HttpAPI":
         self.__init_tests__()
         self.__project_meta = self.__project_meta or load_project_data(
@@ -167,4 +163,3 @@ class HttpAPI:
         if param:
             config_variables.update(param)
         config_variables.update(self.__session_variables)
-
