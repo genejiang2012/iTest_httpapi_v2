@@ -5,8 +5,10 @@
 # @File    : test_api.py.py
 # @Description:
 
-from httpapi.testcases import *
+from loguru import logger
 from tests.context import init_session
+from testsuits.funplus_test import TestLogin, TestSegmentList
+from httpapi.testcases import case_start
 
 
 def test_version():

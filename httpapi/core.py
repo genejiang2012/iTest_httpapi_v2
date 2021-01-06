@@ -149,8 +149,7 @@ class HttpAPI:
 
     def test_start(self, param: Dict = None) -> "HttpAPI":
         self.__init_tests__()
-        self.__project_meta = self.__project_meta or load_project_data(
-            self.__config.path)
+        self.__project_meta = self.__project_meta or {}
         self.__case_id = self.__case_id
         self.__log_path = self.__log_path or os.path.join(
             self.__project_meta.RootDir,
@@ -163,3 +162,14 @@ class HttpAPI:
         if param:
             config_variables.update(param)
         config_variables.update(self.__session_variables)
+        self.__config.name = 'test'
+
+        logger.info(
+            f"Start to run testcase:{self.__config.name}, TecseCase ID:{self.__case_id}"
+        )
+
+        try:
+            pass
+        finally:
+            logger.remove(log_handler)
+            logger.info(f"generate testcase log: {self.__log_path}")

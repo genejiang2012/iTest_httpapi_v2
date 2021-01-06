@@ -1,7 +1,8 @@
+
 from httpapi import HttpAPI, Config, Step, RunRequest, RunTestCase
 
 
-class TestCaseBasic(HttpRunner):
+class TestCaseBasic(HttpAPI):
 
     config = Config("basic test with httpbin").base_url("https://httpbin.org/")
 
