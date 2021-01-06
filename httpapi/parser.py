@@ -8,7 +8,7 @@
 import re
 import yaml
 
-from typing import Tuple, Dict, Union, Text, List, Callable, Any
+from typing import Tuple, Dict, Union, Text, List, Callable, Any, Set
 from loguru import logger
 from httpapi.model import VariablesMapping, FunctionsMapping
 
@@ -51,10 +51,10 @@ def parse_string(
             continue
 
         # search functions
-        func_match = function_regex_compile.match(raw_string, match_start_position)
+        func_match = function_regex_compile.match(raw_string,
+                                                  match_start_position)
         if func_match:
             fun_name = func_match.group(1)
-
 
 
 def parse_data(
@@ -67,3 +67,66 @@ def parse_data(
         functions_mapping = functions_mapping or {}
         raw_data = raw_data.strip(" \t")
         return parse_string()
+
+
+def regex_find_variables(raw_string: Text) -> List[Text]:
+    try:
+        match_start_position = raw_string.index("$", 0)
+    except ValueError:
+        return []
+
+    vars_list = []
+    while match_start_position < len(raw_string):
+        dollar_match = dollar_regex_compile.match(raw_string,
+                                                  match_start_position)
+        if dollar_match:
+            match_start_position = dollar_match.end()
+            continue
+
+        var_match = variable_regex_compile.match(raw_string,
+                                                 match_start_position)
+        if var_match:
+            var_name = var_match.group(1) or var_match.group(2)
+            vars_list.append(var_name)
+            match_start_position = var_match.end()
+            continue
+
+        cur_position = match_start_position
+        try:
+            match_start_position = raw_string.index("$", cur_position + 1)
+        except ValueError:
+            break
+
+    return vars_list
+
+
+def extract_variables(content: Any) -> Set:
+    if isinstance(content, (list, set, tuple)):
+        variables = set()
+        for item in content:
+            variables = variables | extract_variables(item)
+            return variables
+
+    elif isinstance(content, dict):
+        variables = set()
+        for key, value in content.items():
+            variables = variables | extract_variables(value)
+        return variables
+
+    elif isinstance(content, str):
+        return set(regex_find_variables(content))
+
+    return set()
+
+
+def parse_variable_mapping(variables_mapping: VariablesMapping,
+                           functions_mapping: FunctionsMapping = None) \
+        -> VariablesMapping:
+    parsed_variable: VariablesMapping = {}
+    while len(parsed_variable) != len(variables_mapping):
+        for var_name in variables_mapping:
+            if var_name in parsed_variable:
+                continue
+
+            var_value = variables_mapping[var_name]
+            variables = extract_variables(var_value)

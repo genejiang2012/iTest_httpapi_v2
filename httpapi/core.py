@@ -28,6 +28,7 @@ from httpapi.model import (
 from httpapi.testcases import Config, Step
 from httpapi.client import HttpSession
 from httpapi.loader import load_project_data
+from httpapi.utils import merge_variables
 
 
 class BaseAPI:
@@ -162,14 +163,40 @@ class HttpAPI:
         if param:
             config_variables.update(param)
         config_variables.update(self.__session_variables)
-        self.__config.name = 'test'
+        self.__config.name = self.__config.name
 
         logger.info(
             f"Start to run testcase:{self.__config.name}, TecseCase ID:{self.__case_id}"
         )
 
         try:
-            pass
+            return self.run_testcase()
         finally:
             logger.remove(log_handler)
             logger.info(f"generate testcase log: {self.__log_path}")
+
+    def __parse_config(self, config: TConfig) -> NoReturn:
+        config.variables.update(self.__session_variables)
+        config.variables = config.variables
+        config.name = config
+        config.base_url = config.base_url
+
+    def run_testcase(self, testcase: TestCase) -> "HttpAPI":
+        self.__config = testcase.config
+        self.__test_steps = testcase.test_steps
+
+        # prepare
+        self.__project_meta = self.__project_meta
+        self.__parse_config(self.__config)
+        self.__start_at = time.time()
+        self.__step_data: List[StepData] = []
+        self.__session = self.__session or HttpSession()
+        extracted_variables: VariablesMapping = []
+
+        # run test step
+        for step in self.__test_steps:
+            step.variables = merge_variables(step.variables,
+                                             extracted_variables)
+            step.variables = merge_variables(step.variables,
+                                             self.__config.variables)
+
