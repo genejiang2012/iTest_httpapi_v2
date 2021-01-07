@@ -11,6 +11,7 @@ import yaml
 from typing import Tuple, Dict, Union, Text, List, Callable, Any, Set
 from loguru import logger
 from httpapi.model import VariablesMapping, FunctionsMapping
+import httpapi.exceptions as exceptions
 
 dollar_regex_compile = re.compile(r"\$\$")
 variable_regex_compile = re.compile(r"\$\{(\w+)\}|\$(\w+)")
@@ -26,6 +27,14 @@ def load_yaml_file(yaml_file: Text) -> Dict:
             logger.error(error_msg)
 
         return yaml_content
+
+
+def get_mapping_function(function_name: Text,
+                         functions_mapping: FunctionsMapping) -> Callable:
+    if function_name in functions_mapping:
+        return functions_mapping[function_name]
+
+    raise exceptions.FunctionNotFound(f"{function_name} is not found")
 
 
 def parse_string(
@@ -55,6 +64,7 @@ def parse_string(
                                                   match_start_position)
         if func_match:
             fun_name = func_match.group(1)
+            func = get_mapping_function(fun_name, functions_mapping)
 
 
 def parse_data(
@@ -130,3 +140,12 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
 
             var_value = variables_mapping[var_name]
             variables = extract_variables(var_value)
+
+            if var_name in variables:
+                raise exceptions.VariableMappingError(var_name)
+
+            not_defined_variables = [v_name for v_name in variables if
+                                     var_name not in variables_mapping]
+
+            if not_defined_variables:
+                raise exceptions.VariableNotFound(not_defined_variables)

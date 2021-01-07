@@ -21,6 +21,15 @@ class NotFoundError(MyBaseFailure):
 class FileNotFound(FileNotFoundError, NotFoundError):
     pass
 
+
 class FileFormatError(MyBaseFailure):
+    pass
+
+
+class VariableNotFound(NotFoundError):
+    pass
+
+
+class FunctionNotFound(NotFoundError):
     pass
 
