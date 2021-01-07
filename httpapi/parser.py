@@ -6,6 +6,7 @@
 # @Description:
 
 import re
+import ast
 import yaml
 
 from typing import Tuple, Dict, Union, Text, List, Callable, Any, Set
@@ -29,12 +30,56 @@ def load_yaml_file(yaml_file: Text) -> Dict:
         return yaml_content
 
 
+def parse_string_value(str_value: Text) -> Any:
+    try:
+        return ast.literal_eval(str_value)
+    except ValueError:
+        return str_value
+    except SyntaxError:
+        return str_value
+
+
+def parse_function_params(params: Text) -> Dict:
+    """
+
+    :param params:
+    :return:
+    """
+    function_meta = {"args": [], "kwargs": {}}
+
+    params_str = params.strip()
+    if params_str == "":
+        return function_meta
+
+    args_list = params_str.split(",")
+    for arg in args_list:
+        arg = arg.strip()
+        if "=" in arg:
+            key, value = arg.split("=")
+            function_meta["kwargs"][key.strip()] = parse_string_value(
+                value.strip())
+        else:
+            function_meta["args"].append(parse_string_value(arg))
+
+    return function_meta
+
+
 def get_mapping_function(function_name: Text,
                          functions_mapping: FunctionsMapping) -> Callable:
     if function_name in functions_mapping:
         return functions_mapping[function_name]
 
     raise exceptions.FunctionNotFound(f"{function_name} is not found")
+
+
+def get_mapping_variable(variable_name: Text,
+                         variables_mapping: VariablesMapping) -> Any:
+    try:
+        return variables_mapping[variable_name]
+    except KeyError:
+        raise exceptions.VariableNotFound(
+            f"{variable_name} not found in {variables_mapping}"
+        )
 
 
 def parse_string(
@@ -63,9 +108,66 @@ def parse_string(
         func_match = function_regex_compile.match(raw_string,
                                                   match_start_position)
         if func_match:
-            fun_name = func_match.group(1)
-            func = get_mapping_function(fun_name, functions_mapping)
+            func_name = func_match.group(1)
+            func = get_mapping_function(func_name, functions_mapping)
 
+            func_params_str = func_match.group(2)
+            function_meta = parse_function_params(func_params_str)
+            args = function_meta["args"]
+            kwargs = function_meta["kwargs"]
+            parased_args = parse_data(args, variables_mapping,
+                                      functions_mapping)
+            parased_kwargs = parse_data(kwargs, variables_mapping,
+                                        functions_mapping)
+
+            try:
+                func_eval_value = func(*parased_args, **parased_kwargs)
+            except Exception as ex:
+                logger.error(
+                    f"call function error:\n"
+                    f"func_name:{func_name}\n"
+                    f"args: {parased_args}\n"
+                    f"kwargs: {parased_kwargs}\n"
+                    f"{type(ex).__name__}: {ex}"
+                )
+                raise
+            func_raw_str = "${" + func_name + f"({func_params_str})" + "}"
+            if func_raw_str == raw_string:
+                return func_eval_value
+
+            parsed_string += str(func_eval_value)
+            match_start_position = func_match.end()
+            continue
+
+        # search the variable like ${var}
+        var_match = variable_regex_compile.match(raw_string,
+                                                 match_start_position)
+        if var_match:
+            var_name = var_match.group(1) or var_match.group(2)
+            var_value = get_mapping_variable(var_name, variables_mapping)
+
+            if f"${var_name}" == raw_string or "${" + var_name + "}" == raw_string:
+                # raw_string is a variable, $var or ${var}, return its value directly
+                return var_value
+
+            # raw_string contains one or many variables, e.g. "abc${var}def"
+            parsed_string += str(var_value)
+            match_start_position = var_match.end()
+            continue
+
+        curr_position = match_start_position
+        try:
+            # find next $ location
+            match_start_position = raw_string.index("$", curr_position + 1)
+            remain_string = raw_string[curr_position:match_start_position]
+        except ValueError:
+            remain_string = raw_string[curr_position:]
+            # break while loop
+            match_start_position = len(raw_string)
+
+        parsed_string += remain_string
+
+    return parsed_string
 
 def parse_data(
         raw_data: Any,
@@ -149,3 +251,14 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
 
             if not_defined_variables:
                 raise exceptions.VariableNotFound(not_defined_variables)
+
+            try:
+                parsed_value = parse_data(
+                    var_name, parsed_variable,functions_mapping
+                )
+            except exceptions.VariableNotFound:
+                continue
+
+            parsed_variable[var_name] = parsed_value
+
+    return parsed_variable
