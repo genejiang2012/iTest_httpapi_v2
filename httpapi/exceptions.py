@@ -26,10 +26,13 @@ class FileFormatError(MyBaseFailure):
     pass
 
 
-class VariableNotFound(NotFoundError):
+class VariableNotFound(MyBaseFailure):
     pass
 
 
-class FunctionNotFound(NotFoundError):
+class FunctionNotFound(MyBaseFailure):
     pass
+
+
+
 

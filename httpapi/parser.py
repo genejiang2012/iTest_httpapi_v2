@@ -8,6 +8,7 @@
 import re
 import ast
 import yaml
+import builtins
 
 from typing import Tuple, Dict, Union, Text, List, Callable, Any, Set
 from loguru import logger
@@ -68,6 +69,12 @@ def get_mapping_function(function_name: Text,
                          functions_mapping: FunctionsMapping) -> Callable:
     if function_name in functions_mapping:
         return functions_mapping[function_name]
+
+    try:
+        # check if Python builtin functions
+        return getattr(builtins, function_name)
+    except AttributeError:
+        pass
 
     raise exceptions.FunctionNotFound(f"{function_name} is not found")
 
@@ -169,6 +176,7 @@ def parse_string(
 
     return parsed_string
 
+
 def parse_data(
         raw_data: Any,
         variables_mapping: VariablesMapping = None,
@@ -178,7 +186,21 @@ def parse_data(
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
         raw_data = raw_data.strip(" \t")
-        return parse_string()
+        return parse_string(raw_data, variables_mapping, functions_mapping)
+    elif isinstance(raw_data, (list, set, tuple)):
+        return [parse_data(item, variables_mapping, functions_mapping) for item
+                in raw_data]
+    elif isinstance(raw_data, dict):
+        parsed_data = {}
+        for key, value in raw_data.items():
+            parsed_key = parsed_data(key, variables_mapping, functions_mapping)
+            parsed_value = parsed_data(value, variables_mapping,
+                                       functions_mapping)
+            parsed_data[parsed_key] = parsed_value
+
+        return parsed_data
+    else:
+        return raw_data
 
 
 def regex_find_variables(raw_string: Text) -> List[Text]:
@@ -235,6 +257,7 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
                            functions_mapping: FunctionsMapping = None) \
         -> VariablesMapping:
     parsed_variable: VariablesMapping = {}
+
     while len(parsed_variable) != len(variables_mapping):
         for var_name in variables_mapping:
             if var_name in parsed_variable:
@@ -242,9 +265,10 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
 
             var_value = variables_mapping[var_name]
             variables = extract_variables(var_value)
+            print(f"var_value = {var_value}; variables={variables}")
 
             if var_name in variables:
-                raise exceptions.VariableMappingError(var_name)
+                raise exceptions.VariableNotFound(var_name)
 
             not_defined_variables = [v_name for v_name in variables if
                                      var_name not in variables_mapping]
@@ -254,7 +278,7 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
 
             try:
                 parsed_value = parse_data(
-                    var_name, parsed_variable,functions_mapping
+                    var_name, parsed_variable, functions_mapping
                 )
             except exceptions.VariableNotFound:
                 continue
