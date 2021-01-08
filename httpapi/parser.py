@@ -182,20 +182,23 @@ def parse_data(
         variables_mapping: VariablesMapping = None,
         functions_mapping: FunctionsMapping = None
 ) -> Any:
+
     if isinstance(raw_data, str):
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
         raw_data = raw_data.strip(" \t")
         return parse_string(raw_data, variables_mapping, functions_mapping)
+
     elif isinstance(raw_data, (list, set, tuple)):
-        return [parse_data(item, variables_mapping, functions_mapping) for item
-                in raw_data]
+        return [
+            parse_data(item, variables_mapping, functions_mapping) for item in
+            raw_data]
     elif isinstance(raw_data, dict):
         parsed_data = {}
         for key, value in raw_data.items():
-            parsed_key = parsed_data(key, variables_mapping, functions_mapping)
-            parsed_value = parsed_data(value, variables_mapping,
-                                       functions_mapping)
+            parsed_key = parse_data(key, variables_mapping, functions_mapping)
+            parsed_value = parse_data(value, variables_mapping,
+                                      functions_mapping)
             parsed_data[parsed_key] = parsed_value
 
         return parsed_data
