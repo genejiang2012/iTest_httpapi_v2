@@ -289,3 +289,15 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
             parsed_variable[var_name] = parsed_value
 
     return parsed_variable
+
+
+if __name__ == '__main__':
+    variables_mapping = {
+        "var_1": "abc",
+        "var_2": "def",
+        "var_3": 123,
+        "var_4": {"a": 1},
+        "var_5": True,
+        "var_6": None,
+    }
+    value = parse_data("func1(${var_1}, ${var_3})", variables_mapping)

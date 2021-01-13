@@ -10,7 +10,7 @@ import time
 
 from typing import Text, Any, Union, Callable
 
-from httpapi.model import TConfig, TRequest, TestCase, TStep
+from httpapi.model import TConfig, TRequest, TestCase, TStep, MethodEnum
 
 from httpapi.parser import load_yaml_file
 from httpapi.core import *
@@ -79,6 +79,72 @@ class Config:
             path=self.__path,
             weight=self.__weight,
         )
+
+
+class RequestWithOptionalArgs:
+    def __init__(self, step_context: TStep):
+        self.__step_context = step_context
+
+    def with_params(self, **params) -> "RequestWithOptionalArgs":
+        self.__step_context.request.params.update(params)
+        return self
+
+    def with_cookies(self, **cookies) -> "RequestWithOptionalArgs":
+        self.__step_context.request.cookies.update(cookies)
+        return self
+
+    def with_data(self, data) -> "RequestWithOptionalArgs":
+        self.__step_context.request.data = data
+        return self
+
+    def with_json(self, req_json) -> "RequestWithOptionalArgs":
+        self.__step_context.request.req_json = req_json
+        return self
+
+
+
+
+
+class RunRequest:
+    def __init__(self, name: Text):
+        self.__step_context = TStep(name=name)
+
+    def with_variables(self, **variables) ->"RunRequest":
+        self.__step_context.variables.update(variables)
+        return self
+
+    def get(self, url: Text) -> RequestWithOptionalArgs:
+        self.__step_context.request = TRequest(metho=MethodEnum.GET, url=url)
+        return RequestWithOptionalArgs(self.__step_context)
+
+    def post(self, url: Text) -> RequestWithOptionalArgs:
+        self.__step_context.request = TRequest(metho=MethodEnum.GET, url=url)
+        return RequestWithOptionalArgs(self.__step_context)
+
+    def put(self, url: Text) -> RequestWithOptionalArgs:
+        self.__step_context.request = TRequest(method=MethodEnum.PUT, url=url)
+        return RequestWithOptionalArgs(self.__step_context)
+
+    def head(self, url: Text) -> RequestWithOptionalArgs:
+        self.__step_context.request = TRequest(method=MethodEnum.HEAD, url=url)
+        return RequestWithOptionalArgs(self.__step_context)
+
+    def delete(self, url: Text) -> RequestWithOptionalArgs:
+        self.__step_context.request = TRequest(method=MethodEnum.DELETE, url=url)
+        return RequestWithOptionalArgs(self.__step_context)
+
+    def options(self, url: Text) -> RequestWithOptionalArgs:
+        self.__step_context.request = TRequest(method=MethodEnum.OPTIONS, url=url)
+        return RequestWithOptionalArgs(self.__step_context)
+
+    def patch(self, url: Text) -> RequestWithOptionalArgs:
+        self.__step_context.request = TRequest(method=MethodEnum.PATCH, url=url)
+        return RequestWithOptionalArgs(self.__step_context)
+
+
+
+
+
 
 
 class Step:
