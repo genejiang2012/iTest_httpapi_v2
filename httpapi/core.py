@@ -119,7 +119,9 @@ class HttpAPI:
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
-        self.__test_steps = [step.perform() for step in self.test_steps]
+        self.__test_steps = []
+        for step in self.__test_steps:
+            self.__test_steps.append(step.perform())
 
     @property
     def raw_testcase(self) -> TestCase:

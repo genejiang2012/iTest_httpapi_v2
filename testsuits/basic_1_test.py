@@ -1,5 +1,5 @@
 
-from httpapi import HttpAPI, Config, Step, RunRequest, RunTestCase
+from httpapi import HttpAPI, Config, Step, RunRequest
 
 
 class TestCaseBasic(HttpAPI):

@@ -11,7 +11,7 @@ __description__ = "Http API framework"
 
 # from httpapi.parser import parse_parameters as Parameters
 from httpapi.core import HttpAPI
-# from httpapi.testcases import Config, Step, RunRequest, RunTestCase
+from httpapi.testcases import Config, Step, RunRequest
 from httpapi.testcases import Config, Step
 
 __all__ = [
@@ -20,7 +20,7 @@ __all__ = [
     "HttpAPI",
     "Config",
     "Step",
-    # "RunRequest",
-    # "RunTestCase",
+    "RunRequest",
+    #"RunTestCase",
     # "Parameters",
 ]
