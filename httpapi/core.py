@@ -8,6 +8,7 @@
 import json
 import os
 import time
+import uuid
 from datetime import datetime
 from typing import List, Dict, Text, NoReturn
 
@@ -29,6 +30,7 @@ from httpapi.testcases import Config, Step
 from httpapi.client import HttpSession
 from httpapi.loader import load_project_data
 from httpapi.utils import merge_variables
+from httpapi.parser import parse_variable_mapping, parse_data, build_url
 
 
 class BaseAPI:
@@ -152,12 +154,12 @@ class HttpAPI:
 
     def test_start(self, param: Dict = None) -> "HttpAPI":
         self.__init_tests__()
-        self.__project_meta = self.__project_meta or {}
-        self.__case_id = self.__case_id
-        self.__log_path = self.__log_path or os.path.join(
-            self.__project_meta.RootDir,
-            "logs",
-            f"{self.__case_id}.run.log")
+        self.__project_meta = self.__project_meta or os.getcwd()
+        self.__case_id = self.__case_id or str(uuid.uuid4())
+        self.__log_path = self.__log_path or \
+                          os.path.join(self.__project_meta,
+                                       "logs",
+                                       f"{self.__case_id}.run.log")
         log_handler = logger.add(self.__log_path, level="DEBUG")
 
         # parse config name
@@ -172,7 +174,9 @@ class HttpAPI:
         )
 
         try:
-            return self.run_testcase()
+            return self.run_testcase(
+                TestCase(config=self.__config, test_steps=self.__test_steps)
+            )
         finally:
             logger.remove(log_handler)
             logger.info(f"generate testcase log: {self.__log_path}")
@@ -202,3 +206,44 @@ class HttpAPI:
             step.variables = merge_variables(step.variables,
                                              self.__config.variables)
 
+            step.variables = parse_variable_mapping(
+                step.variables, self.__project_meta.functions
+            )
+
+            extract_mapping = self.__run_step(step)
+            extracted_variables.update(extract_mapping)
+
+    def __run_step(self, step: TStep) -> Dict:
+        logger.info(f"run step begin:{step.name} ============")
+
+        if step.request:
+            step_data = self.__run_step_request(step)
+
+    def __run_step_request(self, step: TStep) -> StepData:
+        step_data = StepData(name=step.name)
+
+        # parse
+        # upload functions
+        request_dict = step.request.dict()
+        parsed_request_dict = parse_data(
+            request_dict, step.variables, self.__project_meta.functions
+        )
+        parsed_request_dict["headers"].setdefault(
+            "HRUN-Request-ID",
+            f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
+        )
+        step.variables["requests"] = parsed_request_dict
+
+        method = parsed_request_dict.pop("method")
+        url_path = parsed_request_dict.pop("url")
+        url = build_url(self.__config.base_url, url_path)
+        parsed_request_dict["verify"] = self.__config.verify
+        parsed_request_dict["json"] = parsed_request_dict.pop("req_json", {})
+
+        # request
+        resp = self.__session.request(method, url, **parsed_request_dict)
+        resp_obj = resp
+
+        #extract
+        extractors = step.extract
+        extract_mapping = resp

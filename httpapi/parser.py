@@ -15,9 +15,18 @@ from loguru import logger
 from httpapi.model import VariablesMapping, FunctionsMapping
 import httpapi.exceptions as exceptions
 
+absolute_http_url_regexp = re.compile(r"^https?://", re.I)
+
 dollar_regex_compile = re.compile(r"\$\$")
 variable_regex_compile = re.compile(r"\$\{(\w+)\}|\$(\w+)")
 function_regex_compile = re.compile(r"\$\{(\w+)\(([\$\w\.\-/\s=,]*)\)\}")
+
+
+def build_url(base_url, path):
+    if absolute_http_url_regexp.match(path):
+        return path
+    elif base_url:
+        return f"{base_url.rstrip('/')/path.lstrip('/')}"
 
 
 def load_yaml_file(yaml_file: Text) -> Dict:
@@ -182,7 +191,6 @@ def parse_data(
         variables_mapping: VariablesMapping = None,
         functions_mapping: FunctionsMapping = None
 ) -> Any:
-
     if isinstance(raw_data, str):
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
@@ -289,6 +297,35 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
             parsed_variable[var_name] = parsed_value
 
     return parsed_variable
+
+
+def parse_data(
+        raw_data: Any,
+        variables_mapping: VariablesMapping = None,
+        functions_mapping: FunctionsMapping = None
+) -> Any:
+    if isinstance(raw_data, str):
+        variables_mapping = variables_mapping or {}
+        functions_mapping = functions_mapping or {}
+        raw_data = raw_data.strip(" \t")
+        return parse_string(raw_data, variables_mapping, functions_mapping)
+    elif isinstance(raw_data, (list, set, tuple)):
+        return [
+            parse_data(item, variables_mapping, functions_mapping) for item in
+            raw_data
+        ]
+    elif isinstance(raw_data, dict):
+        parsed_data = {}
+        for key, value in raw_data.items():
+            parsed_key = parsed_data(key, variables_mapping, functions_mapping)
+            parsed_value = parsed_data(value, variables_mapping,
+                                       functions_mapping)
+            parsed_data[parsed_key] = parsed_value
+
+        return parsed_data
+
+    else:
+        return raw_data
 
 
 if __name__ == '__main__':
