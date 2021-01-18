@@ -234,6 +234,7 @@ class HttpAPI:
         )
         step.variables["requests"] = parsed_request_dict
 
+        # prepare agruments
         method = parsed_request_dict.pop("method")
         url_path = parsed_request_dict.pop("url")
         url = build_url(self.__config.base_url, url_path)
@@ -246,4 +247,4 @@ class HttpAPI:
 
         #extract
         extractors = step.extract
-        extract_mapping = resp
+        extract_mapping = resp_obj.extract(extractors)

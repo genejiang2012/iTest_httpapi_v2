@@ -14,6 +14,14 @@ class StringEmptyError(MyBaseFailure):
     pass
 
 
+class ValidationFailure(MyBaseFailure):
+    pass
+
+
+class ParamsError(MyBaseFailure):
+    pass
+
+
 class NotFoundError(MyBaseFailure):
     pass
 
