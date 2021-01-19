@@ -23,6 +23,9 @@ class TestCaseBasic(HttpAPI):
         )
     ]
 
+    for item in teststeps:
+        print(item.request)
+
 
 if __name__ == "__main__":
     TestCaseBasic().test_start()

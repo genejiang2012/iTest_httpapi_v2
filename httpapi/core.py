@@ -26,11 +26,13 @@ from httpapi.model import (
     ProjectMeta,
     TestCase
 )
+from httpapi.response import ResponseObject
 from httpapi.testcases import Config, Step
 from httpapi.client import HttpSession
 from httpapi.loader import load_project_data
 from httpapi.utils import merge_variables
 from httpapi.parser import parse_variable_mapping, parse_data, build_url
+from httpapi.exceptions import ValidationFailure, ParamsError
 
 
 class BaseAPI:
@@ -173,6 +175,8 @@ class HttpAPI:
             f"Start to run testcase:{self.__config.name}, TecseCase ID:{self.__case_id}"
         )
 
+        print(f"config={self.__config}, steps={self.__test_steps}")
+
         try:
             return self.run_testcase(
                 TestCase(config=self.__config, test_steps=self.__test_steps)
@@ -195,7 +199,7 @@ class HttpAPI:
         self.__project_meta = self.__project_meta
         self.__parse_config(self.__config)
         self.__start_at = time.time()
-        self.__step_data: List[StepData] = []
+        self.__step_datas: List[StepData] = []
         self.__session = self.__session or HttpSession()
         extracted_variables: VariablesMapping = []
 
@@ -213,11 +217,26 @@ class HttpAPI:
             extract_mapping = self.__run_step(step)
             extracted_variables.update(extract_mapping)
 
+        self.__session_variables.update(extracted_variables)
+        self.__duration = time.time() - self.__start_at
+
+        return self
+
     def __run_step(self, step: TStep) -> Dict:
         logger.info(f"run step begin:{step.name} ============")
 
         if step.request:
             step_data = self.__run_step_request(step)
+        elif step.testcase:
+            step_data = self.__run_step_request(step)
+        else:
+            raise ParamsError(
+                f"test step is not a request{step.dict()}"
+            )
+
+        self.__step_datas.append(step_data)
+        logger.info(f"run the step end:{step.name} =============\n")
+        return step_data.export_vars
 
     def __run_step_request(self, step: TStep) -> StepData:
         step_data = StepData(name=step.name)
@@ -243,8 +262,38 @@ class HttpAPI:
 
         # request
         resp = self.__session.request(method, url, **parsed_request_dict)
-        resp_obj = resp
+        resp_obj = ResponseObject(resp)
+        step.variables['response'] = resp_obj
 
         #extract
         extractors = step.extract
         extract_mapping = resp_obj.extract(extractors)
+        step_data.export_vars = extract_mapping
+
+        variables_mapping = step.variables
+        variables_mapping.update(extract_mapping)
+
+        # validate
+        validators = step.validators
+        session_success = False
+        try:
+            resp_obj.validate(
+                validators, variables_mapping, self.__project_meta.functions
+            )
+            session_success = True
+        except ValidationFailure:
+            session_success = False
+            self.__duration = time.time() - self.__start_at
+            raise
+        finally:
+            self.success = session_success
+            step_data.success = session_success
+
+            if hasattr(self.__session, "data"):
+                self.__session.data.success = session_success
+                self.__session.data.validators = resp_obj.validation_results
+
+                # save step data
+                step_data.data = self.__session.data
+
+        return step_data

@@ -300,6 +300,33 @@ class RequestWithOptionalArgs:
         return self.__step_context
 
 
+class StepRefCase:
+    def __init__(self, step_context:TStep):
+        self.__step_context = step_context
+
+    def export(self, *var_name: Text) -> "StepRefCase":
+        self.__step_context.export.extend(var_name)
+
+    def perform(self) -> TStep:
+        return self.__step_context
+
+
+class RunTestCase:
+    def __init__(self, name: Text):
+        self.__step_context = TStep(name=name)
+
+    def with_variables(self, **variables) -> "RunTestCase":
+        self.__step_context.variables.update(variables)
+        return self
+
+    def call(self, testcase: Callable) -> StepRefCase:
+        self.__step_context.testcase = testcase
+        return StepRefCase(self.__step_context)
+
+    def perform(self) -> TStep:
+        return self.__step_context
+
+
 class RunRequest:
     def __init__(self, name: Text):
         self.__step_context = TStep(name=name)
@@ -340,7 +367,13 @@ class RunRequest:
 
 
 class Step:
-    def __init__(self, step_context):
+    def __init__(self, step_context: Union[
+        StepRequestValidation,
+        StepRequestExtraction,
+        RequestWithOptionalArgs,
+        RunTestCase,
+        StepRefCase,
+    ]):
         self.__step_context = step_context.perform()
 
     @property
