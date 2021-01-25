@@ -29,7 +29,7 @@ from httpapi.model import (
 from httpapi.response import ResponseObject
 from httpapi.testcases import Config, Step
 from httpapi.client import HttpSession
-from httpapi.loader import load_project_data
+from httpapi.loader import load_project_meta
 from httpapi.utils import merge_variables
 from httpapi.parser import parse_variable_mapping, parse_data, build_url
 from httpapi.exceptions import ValidationFailure, ParamsError
@@ -103,7 +103,7 @@ class BaseAPI:
 
 class HttpAPI:
     config: Config
-    test_steps: List[Step]
+    teststeps: List[Step]
 
     success: bool = False
     __config: TConfig
@@ -123,8 +123,13 @@ class HttpAPI:
 
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
+
+        print(f"====={self.__config.path}")
+
         self.__test_steps = []
-        for step in self.__test_steps:
+
+        for step in self.teststeps:
+            print(f"The step is {step.perform()}")
             self.__test_steps.append(step.perform())
 
     @property
@@ -156,10 +161,14 @@ class HttpAPI:
 
     def test_start(self, param: Dict = None) -> "HttpAPI":
         self.__init_tests__()
-        self.__project_meta = self.__project_meta or os.getcwd()
+
+        self.__project_meta = self.__project_meta or load_project_meta(
+            self.__config.path
+        )
+
         self.__case_id = self.__case_id or str(uuid.uuid4())
         self.__log_path = self.__log_path or \
-                          os.path.join(self.__project_meta,
+                          os.path.join(self.__project_meta.RootDir,
                                        "logs",
                                        f"{self.__case_id}.run.log")
         log_handler = logger.add(self.__log_path, level="DEBUG")
@@ -196,12 +205,15 @@ class HttpAPI:
         self.__test_steps = testcase.test_steps
 
         # prepare
-        self.__project_meta = self.__project_meta
+        self.__project_meta = self.__project_meta or load_project_data(
+            self.__config.path
+        )
+
         self.__parse_config(self.__config)
         self.__start_at = time.time()
         self.__step_datas: List[StepData] = []
         self.__session = self.__session or HttpSession()
-        extracted_variables: VariablesMapping = []
+        extracted_variables: VariablesMapping = {}
 
         # run test step
         for step in self.__test_steps:
@@ -211,7 +223,7 @@ class HttpAPI:
                                              self.__config.variables)
 
             step.variables = parse_variable_mapping(
-                step.variables, self.__project_meta.functions
+                step.variables, {}
             )
 
             extract_mapping = self.__run_step(step)
@@ -223,11 +235,11 @@ class HttpAPI:
         return self
 
     def __run_step(self, step: TStep) -> Dict:
-        logger.info(f"run step begin:{step.name} ============")
+        logger.info(f"run step begin:{step.name} =========={step.request}==")
 
         if step.request:
             step_data = self.__run_step_request(step)
-        elif step.testcase:
+        elif step.test_case:
             step_data = self.__run_step_request(step)
         else:
             raise ParamsError(
@@ -244,6 +256,9 @@ class HttpAPI:
         # parse
         # upload functions
         request_dict = step.request.dict()
+
+        print(
+            f"===={request_dict}==={step.variables}=={self.__project_meta.functions}===")
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
@@ -265,7 +280,7 @@ class HttpAPI:
         resp_obj = ResponseObject(resp)
         step.variables['response'] = resp_obj
 
-        #extract
+        # extract
         extractors = step.extract
         extract_mapping = resp_obj.extract(extractors)
         step_data.export_vars = extract_mapping

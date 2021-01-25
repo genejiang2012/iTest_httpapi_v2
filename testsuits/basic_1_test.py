@@ -28,4 +28,5 @@ class TestCaseBasic(HttpAPI):
 
 
 if __name__ == "__main__":
+    # print(TestCaseBasic().__dir__())
     TestCaseBasic().test_start()

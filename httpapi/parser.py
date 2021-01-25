@@ -26,7 +26,7 @@ def build_url(base_url, path):
     if absolute_http_url_regexp.match(path):
         return path
     elif base_url:
-        return f"{base_url.rstrip('/')/path.lstrip('/')}"
+        return f"{base_url.rstrip('/') / path.lstrip('/')}"
 
 
 def load_yaml_file(yaml_file: Text) -> Dict:
@@ -309,6 +309,7 @@ def parse_data(
         functions_mapping = functions_mapping or {}
         raw_data = raw_data.strip(" \t")
         return parse_string(raw_data, variables_mapping, functions_mapping)
+
     elif isinstance(raw_data, (list, set, tuple)):
         return [
             parse_data(item, variables_mapping, functions_mapping) for item in

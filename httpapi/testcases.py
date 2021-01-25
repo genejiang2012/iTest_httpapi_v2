@@ -7,6 +7,7 @@
 
 import os
 import time
+import inspect
 
 from typing import Text, Any, Union, Callable
 
@@ -42,9 +43,16 @@ class Config:
         self.__weight = 1
         self.__path = None
 
+        caller_frame = inspect.stack()[1]
+        self.__path = caller_frame.filename
+
     @property
     def name(self) -> Text:
         return self.__name
+
+    @property
+    def path(self) -> Text:
+        return self.__path
 
     @property
     def weight(self) -> int:
@@ -375,6 +383,7 @@ class Step:
         StepRefCase,
     ]):
         self.__step_context = step_context.perform()
+        print(f"___self.step_context = {self.__step_context}")
 
     @property
     def request(self) -> TRequest:

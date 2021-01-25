@@ -19,6 +19,8 @@ from pydantic import ValidationError
 from httpapi.model import TestCase, ProjectMeta, TestSuite
 from httpapi import exceptions
 
+project_meta: Union[ProjectMeta, None] = None
+
 
 def locate_project_root_directory(test_path: Text) -> Tuple[Text, Text]:
     def prepare_path(path):
@@ -95,7 +97,7 @@ def load_dot_env_file(dot_env_path: Text) -> Dict:
     return env_variable_mapping
 
 
-def load_project_data(test_path: Text, reload: bool = False) -> ProjectMeta:
+def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
     global project_meta
 
     if project_meta and (not reload):
