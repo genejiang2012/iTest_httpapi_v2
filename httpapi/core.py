@@ -124,12 +124,12 @@ class HttpAPI:
     def __init_tests__(self) -> NoReturn:
         self.__config = self.config.perform()
 
-        print(f"====={self.__config.path}")
+        logger.info(f"config_path is {self.__config.path}")
 
         self.__test_steps = []
-
         for step in self.teststeps:
-            print(f"The step is {step.perform()}")
+            logger.info(f"The step is {step.perform()}")
+
             self.__test_steps.append(step.perform())
 
     @property
@@ -171,7 +171,10 @@ class HttpAPI:
                           os.path.join(self.__project_meta.RootDir,
                                        "logs",
                                        f"{self.__case_id}.run.log")
+
         log_handler = logger.add(self.__log_path, level="DEBUG")
+
+        logger.info(f"The log path is {self.__log_path}")
 
         # parse config name
         config_variables = self.__config.variables
@@ -181,10 +184,10 @@ class HttpAPI:
         self.__config.name = self.__config.name
 
         logger.info(
-            f"Start to run testcase:{self.__config.name}, TecseCase ID:{self.__case_id}"
+            f"Start to run testcase:[{self.__config.name}], TecseCase ID:{self.__case_id}"
         )
 
-        print(f"config={self.__config}, steps={self.__test_steps}")
+        logger.info(f"config={self.__config}, steps={self.__test_steps}")
 
         try:
             return self.run_testcase(
@@ -204,10 +207,14 @@ class HttpAPI:
         self.__config = testcase.config
         self.__test_steps = testcase.test_steps
 
+        logger.info(f"test steps are {self.__test_steps}")
+
         # prepare
-        self.__project_meta = self.__project_meta or load_project_data(
+        self.__project_meta = self.__project_meta or load_project_meta(
             self.__config.path
         )
+
+        logger.info(f"The project meta is {self.__project_meta}")
 
         self.__parse_config(self.__config)
         self.__start_at = time.time()
@@ -257,16 +264,22 @@ class HttpAPI:
         # upload functions
         request_dict = step.request.dict()
 
-        print(
-            f"===={request_dict}==={step.variables}=={self.__project_meta.functions}===")
+        logger.info(
+            f"The request dict is {request_dict},"
+            f" {step.variables},"
+            f" {self.__project_meta.functions}")
+
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
+
         parsed_request_dict["headers"].setdefault(
             "HRUN-Request-ID",
             f"HRUN-{self.__case_id}-{str(int(time.time() * 1000))[-6:]}",
         )
         step.variables["requests"] = parsed_request_dict
+
+        logger.info(f"The parsed request dict is {parsed_request_dict}")
 
         # prepare agruments
         method = parsed_request_dict.pop("method")
@@ -276,6 +289,8 @@ class HttpAPI:
         parsed_request_dict["json"] = parsed_request_dict.pop("req_json", {})
 
         # request
+        logger.info(f"{method}, {url}, {parsed_request_dict}")
+
         resp = self.__session.request(method, url, **parsed_request_dict)
         resp_obj = ResponseObject(resp)
         step.variables['response'] = resp_obj

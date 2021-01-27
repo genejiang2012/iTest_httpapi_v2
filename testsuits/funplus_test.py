@@ -21,7 +21,7 @@ yaml_content = load_yaml_file(yaml_file_whole_path)
 
 
 def concat_url(host, port, path):
-    print(host, port, path)
+    logger.info(f"The host is {host}, the port is {port}, the path is {path}")
     if port:
         url = f"{host}:{port}/{path}"
     elif host:

@@ -1,6 +1,6 @@
 
 from httpapi import HttpAPI, Config, Step, RunRequest
-
+from loguru import logger
 
 class TestCaseBasic(HttpAPI):
 
@@ -24,7 +24,7 @@ class TestCaseBasic(HttpAPI):
     ]
 
     for item in teststeps:
-        print(item.request)
+        logger.info(item.request)
 
 
 if __name__ == "__main__":

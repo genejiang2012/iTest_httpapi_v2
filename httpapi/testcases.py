@@ -383,7 +383,7 @@ class Step:
         StepRefCase,
     ]):
         self.__step_context = step_context.perform()
-        print(f"___self.step_context = {self.__step_context}")
+        logger.info(f"___self.step_context = {self.__step_context}")
 
     @property
     def request(self) -> TRequest:

@@ -7,6 +7,7 @@
 
 import pytest
 from httpapi import parser
+import logger
 
 
 def test_parse_string_value():
@@ -77,6 +78,6 @@ def test_parse_variable_mapping():
     variables = {"varA": "$varB", "varB": "$varC", "varC": "123", "a": 1,
                  "b": 2}
     parsed_variable = parser.parse_variable_mapping(variables)
-    print(parsed_variable)
+    logger.info(f"The parsed value is {parsed_variable}")
     assert parsed_variable["varA"] == "123"
     assert parsed_variable["varB"] == "123"

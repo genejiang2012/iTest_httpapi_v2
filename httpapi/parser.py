@@ -23,10 +23,15 @@ function_regex_compile = re.compile(r"\$\{(\w+)\(([\$\w\.\-/\s=,]*)\)\}")
 
 
 def build_url(base_url, path):
+    """ prepend url with base_url unless it's already an absolute URL """
     if absolute_http_url_regexp.match(path):
         return path
     elif base_url:
-        return f"{base_url.rstrip('/') / path.lstrip('/')}"
+        return "{}/{}".format(base_url.rstrip("/"), path.lstrip("/"))
+    else:
+        raise exceptions.ParamsError("base url missed!")
+
+
 
 
 def load_yaml_file(yaml_file: Text) -> Dict:
@@ -183,6 +188,7 @@ def parse_string(
 
         parsed_string += remain_string
 
+    logger.info(f"parsed_string is {parsed_string}")
     return parsed_string
 
 
@@ -276,7 +282,7 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
 
             var_value = variables_mapping[var_name]
             variables = extract_variables(var_value)
-            print(f"var_value = {var_value}; variables={variables}")
+            logger.info(f"var_value = {var_value}; variables={variables}")
 
             if var_name in variables:
                 raise exceptions.VariableNotFound(var_name)
@@ -302,11 +308,16 @@ def parse_variable_mapping(variables_mapping: VariablesMapping,
 def parse_data(
         raw_data: Any,
         variables_mapping: VariablesMapping = None,
-        functions_mapping: FunctionsMapping = None
+        functions_mapping: FunctionsMapping = None,
 ) -> Any:
+    """ parse raw data with evaluated variables mapping.
+        Notice: variables_mapping should not contain any variable or function.
+    """
     if isinstance(raw_data, str):
+        # content in string format may contains variables and functions
         variables_mapping = variables_mapping or {}
         functions_mapping = functions_mapping or {}
+        # only strip whitespaces and tabs, \n\r is left because they maybe used in changeset
         raw_data = raw_data.strip(" \t")
         return parse_string(raw_data, variables_mapping, functions_mapping)
 
@@ -315,17 +326,20 @@ def parse_data(
             parse_data(item, variables_mapping, functions_mapping) for item in
             raw_data
         ]
+
     elif isinstance(raw_data, dict):
         parsed_data = {}
         for key, value in raw_data.items():
-            parsed_key = parsed_data(key, variables_mapping, functions_mapping)
-            parsed_value = parsed_data(value, variables_mapping,
-                                       functions_mapping)
+            logger.info(f"key is {key}, value is {value}")
+            parsed_key = parse_data(key, variables_mapping, functions_mapping)
+            parsed_value = parse_data(value, variables_mapping,
+                                      functions_mapping)
             parsed_data[parsed_key] = parsed_value
 
         return parsed_data
 
     else:
+        # other types, e.g. None, int, float, bool
         return raw_data
 
 

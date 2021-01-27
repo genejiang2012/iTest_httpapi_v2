@@ -67,7 +67,7 @@ def locate_file(start_path: Text, file_name: Text) -> Text:
 
 def locate_httpapi_py(start_path: Text) -> Text:
     try:
-        httpapi_path = locate_file(start_path, "httpaip.py")
+        httpapi_path = locate_file(start_path, "httpapi.py")
     except exceptions.FileNotFound:
         httpapi_path = None
 

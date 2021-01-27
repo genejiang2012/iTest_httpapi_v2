@@ -112,6 +112,9 @@ class HttpSession(requests.Session):
         kwargs["stream"] = True
 
         start_timestamp = time.time()
+
+        logger.info(f"client-reuqest-{method}, {url}, {kwargs}")
+
         response = self._send_request_safe_mode(method, url, **kwargs)
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)
 
