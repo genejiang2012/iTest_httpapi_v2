@@ -116,6 +116,9 @@ class HttpSession(requests.Session):
         logger.info(f"client-reuqest-{method}, {url}, {kwargs}")
 
         response = self._send_request_safe_mode(method, url, **kwargs)
+
+        logger.info(f"response===={response}")
+
         response_time_ms = round((time.time() - start_timestamp) * 1000, 2)
 
         try:
@@ -135,7 +138,7 @@ class HttpSession(requests.Session):
             logger.warning(f"failed to get client address info:{ex}")
 
         # get length of the response content
-        content_size = int(dict(response.headers).get("content-length") or 0)
+        content_size = int(dict(response.headers) .get("content-length") or 0)
 
         # record the consumed time
         self.data.stat.response_time_ms = response_time_ms

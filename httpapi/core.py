@@ -269,6 +269,7 @@ class HttpAPI:
             f" {step.variables},"
             f" {self.__project_meta.functions}")
 
+        request_dict.pop("upload", None)
         parsed_request_dict = parse_data(
             request_dict, step.variables, self.__project_meta.functions
         )
@@ -292,6 +293,9 @@ class HttpAPI:
         logger.info(f"{method}, {url}, {parsed_request_dict}")
 
         resp = self.__session.request(method, url, **parsed_request_dict)
+
+        logger.info(f"resp=============={resp}")
+
         resp_obj = ResponseObject(resp)
         step.variables['response'] = resp_obj
 
