@@ -10,6 +10,7 @@ from httpapi.exceptions import ValidationFailure, ParamsError
 from httpapi.model import VariablesMapping, Validators, FunctionsMapping
 from httpapi.parser import parse_data, parse_string_value, get_mapping_function
 
+
 def get_uniform_comparator(comparator: Text):
     """ convert comparator alias to uniform name
     """

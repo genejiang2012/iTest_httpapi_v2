@@ -125,3 +125,32 @@ def load_project_meta(test_path: Text, reload: bool = False) -> ProjectMeta:
     project_meta.httpapi_path = httpapi_path
 
     return project_meta
+
+
+def load_builtin_functions() -> Dict[Text, Callable]:
+    """ load builtin module functions
+    """
+    return load_module_functions(builtin)
+
+def load_module_functions(module) -> Dict[Text, Callable]:
+    """ load python module functions.
+
+    Args:
+        module: python module
+
+    Returns:
+        dict: functions mapping for specified python module
+
+            {
+                "func1_name": func1,
+                "func2_name": func2
+            }
+
+    """
+    module_functions = {}
+
+    for name, item in vars(module).items():
+        if isinstance(item, types.FunctionType):
+            module_functions[name] = item
+
+    return module_functions

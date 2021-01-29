@@ -12,6 +12,8 @@ import builtins
 
 from typing import Tuple, Dict, Union, Text, List, Callable, Any, Set
 from loguru import logger
+
+from httpapi import loader, utils
 from httpapi.model import VariablesMapping, FunctionsMapping
 import httpapi.exceptions as exceptions
 
@@ -81,6 +83,7 @@ def parse_function_params(params: Text) -> Dict:
 
 def get_mapping_function(function_name: Text,
                          functions_mapping: FunctionsMapping) -> Callable:
+
     if function_name in functions_mapping:
         return functions_mapping[function_name]
 
@@ -90,7 +93,7 @@ def get_mapping_function(function_name: Text,
     except AttributeError:
         pass
 
-    raise exceptions.FunctionNotFound(f"{function_name} is not found")
+    raise exceptions.FunctionNotFound(f"{function_name} is not found.")
 
 
 def get_mapping_variable(variable_name: Text,

@@ -21,14 +21,17 @@ from loguru import logger
 
 from httpapi.model import RequestData, ResponseData
 from httpapi.model import SessionData, ReqRespData
+from httpapi.utils import lower_dict_keys
 
 
 def get_req_resp_record(resp_obj: Response) -> ReqRespData:
+
     def log_print(req_or_resp, r_type):
         msg = f"\n=================={r_type} details ========== \n"
         for key, value in req_or_resp.dict().items():
             if isinstance(value, dict):
                 value = json.dumps(value, indent=4)
+
             msg += "{:<8} : {}\n".format(key, value)
         logger.debug(msg)
 
@@ -47,8 +50,8 @@ def get_req_resp_record(resp_obj: Response) -> ReqRespData:
         except TypeError:
             pass
 
-        request_content_type = request_headers.get("Content-Type")
-        if request_content_type and "Multipart/form-data" in request_content_type:
+        request_content_type = lower_dict_keys(request_headers).get("content-type")
+        if request_content_type and "multipart/form-data" in request_content_type:
             request_body = "upload file stream(OMITTED)"
 
     request_data = RequestData(
@@ -64,7 +67,8 @@ def get_req_resp_record(resp_obj: Response) -> ReqRespData:
 
     # record response information
     resp_headers = dict(resp_obj.headers)
-    content_type = resp_headers.get("Content-Type")
+    lower_resp_headers = lower_dict_keys(resp_headers)
+    content_type = lower_resp_headers.get("content-type", "")
 
     if "image" in content_type:
         response_body = resp_obj.content
@@ -75,7 +79,9 @@ def get_req_resp_record(resp_obj: Response) -> ReqRespData:
             resp_text = resp_obj.text
             response_body = resp_text
 
-    response_data = ReqRespData(
+    logger.info(f"******response_body*****{response_body}")
+
+    response_data = ResponseData(
         status_code=resp_obj.status_code,
         cookies=resp_obj.cookies or {},
         encoding=resp_obj.encoding,
@@ -83,6 +89,7 @@ def get_req_resp_record(resp_obj: Response) -> ReqRespData:
         content_type=content_type,
         body=response_body
     )
+
     log_print(response_data, "response")
 
     req_resp_data = ReqRespData(request=request_data, response=response_data)
@@ -147,6 +154,7 @@ class HttpSession(requests.Session):
 
         # record request and response histories, include 30X redirection
         response_list = response.history + [response]
+
         self.data.req_resps = [
             get_req_resp_record(resp_obj) for resp_obj in response_list
         ]
