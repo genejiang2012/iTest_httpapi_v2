@@ -217,7 +217,7 @@ class ResponseObject(object):
 
             # comparator
             assert_method = u_validator["assert"]
-            assert_func = get_mapping_function(assert_method, functions_mapping)
+            # assert_func = get_mapping_function(assert_method, functions_mapping)
 
             # expect item
             expect_item = u_validator["expect"]
@@ -241,7 +241,7 @@ class ResponseObject(object):
             }
 
             try:
-                assert_func(check_value, expect_value, message)
+                # assert_func(check_value, expect_value, message)
                 validate_msg += "\t==> pass"
                 logger.info(validate_msg)
                 validator_dict["check_result"] = "pass"

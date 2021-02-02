@@ -310,6 +310,7 @@ class HttpAPI:
         # validate
         validators = step.validators
         session_success = False
+        logger.info(f"{self.__project_meta.functions}")
         try:
             resp_obj.validate(
                 validators, variables_mapping, self.__project_meta.functions
