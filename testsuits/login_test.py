@@ -1,10 +1,10 @@
 
 from httpapi import HttpAPI, Config, Step, RunRequest
-from loguru import logger
+
 
 class TestCaseBasic(HttpAPI):
 
-    config = Config("basic test with httpbin").base_url("https://httpbin.org/")
+    config = Config("login in web dev").base_url("https://httpbin.org/")
 
     teststeps = [
         Step(

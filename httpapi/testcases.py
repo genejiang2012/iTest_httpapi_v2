@@ -11,6 +11,8 @@ import inspect
 
 from typing import Text, Any, Union, Callable
 
+from loguru import logger
+
 from httpapi.model import TConfig, TRequest, TestCase, TStep, MethodEnum
 
 from httpapi.parser import load_yaml_file
@@ -383,7 +385,7 @@ class Step:
         StepRefCase,
     ]):
         self.__step_context = step_context.perform()
-        logger.info(f"___self.step_context = {self.__step_context}")
+        # logger.info(f"___self.step_context = {self.__step_context}")
 
     @property
     def request(self) -> TRequest:
