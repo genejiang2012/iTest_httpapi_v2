@@ -7,7 +7,7 @@
 
 import pytest
 from httpapi import parser
-import logger
+from loguru import logger
 
 
 def test_parse_string_value():

@@ -25,13 +25,11 @@ from httpapi.utils import lower_dict_keys
 
 
 def get_req_resp_record(resp_obj: Response) -> ReqRespData:
-
     def log_print(req_or_resp, r_type):
         msg = f"\n=================={r_type} details ========== \n"
         for key, value in req_or_resp.dict().items():
             if isinstance(value, dict):
                 value = json.dumps(value, indent=4)
-
             msg += "{:<8} : {}\n".format(key, value)
         logger.debug(msg)
 
@@ -50,7 +48,8 @@ def get_req_resp_record(resp_obj: Response) -> ReqRespData:
         except TypeError:
             pass
 
-        request_content_type = lower_dict_keys(request_headers).get("content-type")
+        request_content_type = lower_dict_keys(request_headers).get(
+            "content-type")
         if request_content_type and "multipart/form-data" in request_content_type:
             request_body = "upload file stream(OMITTED)"
 
@@ -145,7 +144,7 @@ class HttpSession(requests.Session):
             logger.warning(f"failed to get client address info:{ex}")
 
         # get length of the response content
-        content_size = int(dict(response.headers) .get("content-length") or 0)
+        content_size = int(dict(response.headers).get("content-length") or 0)
 
         # record the consumed time
         self.data.stat.response_time_ms = response_time_ms
