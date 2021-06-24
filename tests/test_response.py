@@ -8,6 +8,15 @@
 import pytest
 from httpapi import parser
 from loguru import logger
+from httpapi import response
+
+
+def test_get_uniform_comparator():
+    """
+    test the get_uniform_comparator function from class named response
+    :return:
+    """
+    assert response.get_uniform_comparator("eq") == "equals"
 
 
 def test_parse_string_value():
