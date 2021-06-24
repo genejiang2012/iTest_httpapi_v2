@@ -36,6 +36,9 @@ def case_start(name):
 
 
 class Config:
+    """
+    config the name, url, variables, export value, path etc.
+    """
     def __init__(self, name: Text):
         self.__name = name
         self.__variables = {}
@@ -93,6 +96,9 @@ class Config:
 
 
 class StepRequestValidation(object):
+    """
+    validate the request from step
+    """
     def __init__(self, step_context: TStep):
         self.__step_context = step_context
 
