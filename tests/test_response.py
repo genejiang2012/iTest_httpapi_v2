@@ -33,6 +33,8 @@ def test_uniform_validator():
     assert response.uniform_validator(validator)["assert"] == "equals"
 
 
+def test_response_object():
+    pass
 
 
 

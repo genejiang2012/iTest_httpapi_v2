@@ -83,7 +83,6 @@ def uniform_validator(validator):
         expect_value = validator["expect"]
         message = validator.get("message", "")
         comparator = validator.get("comparator", "eq")
-
     elif len(validator) == 1:
         # format2
         comparator = list(validator.keys())[0]
