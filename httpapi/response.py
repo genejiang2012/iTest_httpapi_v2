@@ -193,7 +193,6 @@ class ResponseObject(object):
         failures = []
 
         for v in validators:
-
             if "validate_extractor" not in self.validation_results:
                 self.validation_results["validate_extractor"] = []
 

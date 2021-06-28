@@ -30,11 +30,18 @@ def test_uniform_validator():
     }
     assert response.uniform_validator(validator)["check"] == "status_code"
     assert response.uniform_validator(validator)["expect"] == 201
-    assert response.uniform_validator(validator)["assert"] == "equals"
+    # assert response.uniform_validator(validator)["assert"] == "equals"
 
 
 def test_response_object():
-    pass
+    import requests
+    params = {"key1": "python", "key2": "java"}
+    r = requests.get(url="http://httpbin.org/get", params=params)
+    print(type(r), r)
+
+    obj_response = response.ResponseObject(r)
+    assert obj_response.__getattr__("json") == r.json()
+
 
 
 
