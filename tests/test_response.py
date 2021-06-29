@@ -35,9 +35,10 @@ def test_uniform_validator():
 
 def test_response_object():
     import requests
+    import json
     params = {"key1": "python", "key2": "java"}
     r = requests.get(url="http://httpbin.org/get", params=params)
-    print(type(r), r)
+    dict_result = json.loads(r.json())
 
     obj_response = response.ResponseObject(r)
     assert obj_response.__getattr__("json") == r.json()
