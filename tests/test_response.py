@@ -33,15 +33,17 @@ def test_uniform_validator():
     # assert response.uniform_validator(validator)["assert"] == "equals"
 
 
-def test_response_object():
-    import requests
-    import json
-    params = {"key1": "python", "key2": "java"}
-    r = requests.get(url="http://httpbin.org/get", params=params)
-    dict_result = json.loads(r.json())
+class TestResponseObject:
+    def setup(self):
+        import requests
+        import json
+        params = {"key1": "python", "key2": "java"}
+        self.r = requests.get(url="http://httpbin.org/get", params=params)
+        self.response_obj = response.ResponseObject(self.r)
 
-    obj_response = response.ResponseObject(r)
-    assert obj_response.__getattr__("json") == r.json()
+    @pytest.mark.important
+    def test_response_object(self):
+        assert self.response_obj.__getattr__("json") == self.r.json()
 
 
 
