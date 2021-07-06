@@ -41,9 +41,33 @@ class TestResponseObject:
         self.r = requests.get(url="http://httpbin.org/get", params=params)
         self.response_obj = response.ResponseObject(self.r)
 
+
     @pytest.mark.important
     def test_response_object(self):
         assert self.response_obj.__getattr__("json") == self.r.json()
+
+
+    def test_search_jmespath(self):
+        self.resp_obj_meta ={
+            "status_code": self.r.status_code,
+            "headers": self.r.headers,
+            "cookies": self.r.cookies
+        }
+
+        print(self.r.headers)
+        assert self.response_obj._search_jmespath("status_code") == 200
+        assert self.response_obj._search_jmespath("headers") == self.r.headers
+        assert self.response_obj._search_jmespath("cookies") == self.r.cookies
+
+
+    def test_extract(self):
+        pass
+
+    def test_validate(self):
+        pass
+
+
+
 
 
 
