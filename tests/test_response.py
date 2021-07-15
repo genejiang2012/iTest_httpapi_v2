@@ -41,11 +41,8 @@ class TestResponseObject:
         self.r = requests.get(url="http://httpbin.org/get", params=params)
         self.response_obj = response.ResponseObject(self.r)
 
-
-    @pytest.mark.important
     def test_response_object(self):
         assert self.response_obj.__getattr__("json") == self.r.json()
-
 
     def test_search_jmespath(self):
         self.resp_obj_meta ={
@@ -59,9 +56,9 @@ class TestResponseObject:
         assert self.response_obj._search_jmespath("headers") == self.r.headers
         assert self.response_obj._search_jmespath("cookies") == self.r.cookies
 
-
     def test_extract(self):
-        pass
+        extractors = {"origin": "120.204.231.66"}
+        assert self.response_obj.extract(extractors) == "test"
 
     def test_validate(self):
         pass
