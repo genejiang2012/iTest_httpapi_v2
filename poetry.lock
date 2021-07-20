@@ -10,6 +10,32 @@ python-versions = ">=3.5"
 contextvars = {version = "2.4", markers = "python_version < \"3.7\""}
 
 [[package]]
+name = "allure-pytest"
+version = "2.9.43"
+description = "Allure pytest integration"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+allure-python-commons = "2.9.43"
+pytest = ">=4.5.0"
+six = ">=1.9.0"
+
+[[package]]
+name = "allure-python-commons"
+version = "2.9.43"
+description = "Common module for integrate allure with python-based frameworks"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+attrs = ">=16.0.0"
+pluggy = ">=0.4.0"
+six = ">=1.9.0"
+
+[[package]]
 name = "atomicwrites"
 version = "1.4.0"
 description = "Atomic file writes."
@@ -288,6 +314,14 @@ security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
 [[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
 name = "soupsieve"
 version = "2.1"
 description = "A modern CSS selector implementation for Beautiful Soup."
@@ -350,12 +384,20 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "f076fb61e87d7a408ff2e9b20e27331a36d70618d9199fcfa68ca2fb1c75c168"
+content-hash = "1e1608fcaf1cf3b04957ab27bdfe4b1ca8de9b7c4fb4f5a7ae80e2633aed3712"
 
 [metadata.files]
 aiocontextvars = [
     {file = "aiocontextvars-0.2.2-py2.py3-none-any.whl", hash = "sha256:885daf8261818767d8f7cbd79f9d4482d118f024b6586ef6e67980236a27bfa3"},
     {file = "aiocontextvars-0.2.2.tar.gz", hash = "sha256:f027372dc48641f683c559f247bd84962becaacdc9ba711d583c3871fb5652aa"},
+]
+allure-pytest = [
+    {file = "allure-pytest-2.9.43.tar.gz", hash = "sha256:9ba613858a33c6becba539966116be5720c15f8c0427122e03c41082cfaa173a"},
+    {file = "allure_pytest-2.9.43-py3-none-any.whl", hash = "sha256:b2ba613fe33b53924fdef2f21ee72cf14c2cc39a0ee8dadefd5d6ed7c927f430"},
+]
+allure-python-commons = [
+    {file = "allure-python-commons-2.9.43.tar.gz", hash = "sha256:461bdd17c6514e130cfbb01d7060c82821a5ae1d2e049daefe64c4738d865cef"},
+    {file = "allure_python_commons-2.9.43-py3-none-any.whl", hash = "sha256:07e366f099c5ae248a1e8c56713bc9c25316ce8269944b4b038c62d2aacd8dbb"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
@@ -528,6 +570,10 @@ pyyaml = [
 requests = [
     {file = "requests-2.25.1-py2.py3-none-any.whl", hash = "sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e"},
     {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
+]
+six = [
+    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
+    {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
 soupsieve = [
     {file = "soupsieve-2.1-py3-none-any.whl", hash = "sha256:4bb21a6ee4707bf43b61230e80740e71bfe56e55d1f1f50924b087bb2975c851"},
